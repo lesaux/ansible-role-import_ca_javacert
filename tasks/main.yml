@@ -1,0 +1,23 @@
+---
+- name: Find java home
+  shell: dirname $(dirname $(readlink -f $(which javac)))
+  register: java_home
+
+- name: Import trusted CA from SSL certificate
+  community.general.java_cert:
+    cert_path: "{{ upload_ca_cert_path }}"
+    keystore_path: "{{ java_home.stdout }}/lib/security/cacerts"
+    keystore_pass: "{{ upload_ca_keystore_pass }}"
+    cert_alias: "{{ upload_ca_cert_alias }}"
+    keystore_create: yes
+    state: present
+    trust_cacert: true
+  register: imported
+  when: java_home is success
+
+- name: Restart service graylog-server on redhat, in all cases, also issue daemon-reload to pick up config changes
+  ansible.builtin.systemd:
+    state: restarted
+    daemon_reload: yes
+    name: graylog-server
+  when: imported is success

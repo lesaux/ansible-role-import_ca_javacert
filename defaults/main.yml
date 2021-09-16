@@ -1,0 +1,6 @@
+---
+ca_root_crt:
+
+upload_ca_keystore_pass:
+upload_ca_cert_alias:
+upload_ca_cert_path: /etc/pki/ca-trust/source/anchors/root.crt
